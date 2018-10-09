@@ -2,11 +2,22 @@ package client;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 
+import rental.CarType;
+import rental.ICarRentalCompany;  //mag dit?
 import rental.Quote;
 import rental.Reservation;
+import rental.ReservationConstraints;
+import rental.ReservationException;
 
 public class Client extends AbstractTestBooking {
+	
+	private ICarRentalCompany crc;
 	
 	/********
 	 * MAIN *
@@ -15,6 +26,9 @@ public class Client extends AbstractTestBooking {
 	public static void main(String[] args) throws Exception {
 		
 		String carRentalCompanyName = "Hertz";
+		System.setSecurityManager(null);
+		
+		
 		
 		// An example reservation scenario on car rental company 'Hertz' would be...
 		Client client = new Client("simpleTrips", carRentalCompanyName);
@@ -22,13 +36,16 @@ public class Client extends AbstractTestBooking {
 	}
 	
 	/***************
-	 * CONSTRUCTOR *
+	 * CONSTRUCTOR 
+	 * @throws RemoteException 
+	 * @throws NotBoundException *
 	 ***************/
 	
-	public Client(String scriptFile, String carRentalCompanyName) {
+	public Client(String scriptFile, String carRentalCompanyName) throws RemoteException, NotBoundException {
 		super(scriptFile);
 		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("TODO");
+		Registry registry = LocateRegistry.getRegistry();
+		crc = (ICarRentalCompany) registry.lookup(carRentalCompanyName);
 	}
 	
 	/**
@@ -39,13 +56,16 @@ public class Client extends AbstractTestBooking {
 	 * 			start time of the period
 	 * @param 	end
 	 * 			end time of the period
+	 * @throws RemoteException 
 	 * @throws 	Exception
 	 * 			if things go wrong, throw exception
 	 */
 	@Override
-	protected void checkForAvailableCarTypes(Date start, Date end) throws Exception {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("TODO");
+	protected void checkForAvailableCarTypes(Date start, Date end) throws RemoteException{
+		Set<CarType> list = crc.getAvailableCarTypes(start,end);
+		for(CarType c : list){
+			System.out.println(c.getName());
+		}
 	}
 
 	/**
@@ -62,15 +82,16 @@ public class Client extends AbstractTestBooking {
 	 * @param 	region
 	 * 			region in which car must be available
 	 * @return	the newly created quote
+	 * @throws ReservationException 
 	 *  
 	 * @throws 	Exception
 	 * 			if things go wrong, throw exception
 	 */
 	@Override
 	protected Quote createQuote(String clientName, Date start, Date end,
-			String carType, String region) throws Exception {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("TODO");
+			String carType, String region) throws RemoteException, ReservationException {
+		ReservationConstraints constraint = new ReservationConstraints(start,end,carType,region);
+		return crc.createQuote(constraint, clientName);
 	}
 
 	/**
@@ -79,14 +100,15 @@ public class Client extends AbstractTestBooking {
 	 * @param 	quote 
 	 * 			the quote to be confirmed
 	 * @return	the final reservation of a car
+	 * @throws ReservationException 
+	 * @throws RemoteException 
 	 * 
 	 * @throws 	Exception
 	 * 			if things go wrong, throw exception
 	 */
 	@Override
-	protected Reservation confirmQuote(Quote quote) throws Exception {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("TODO");
+	protected Reservation confirmQuote(Quote quote) throws RemoteException, ReservationException  {
+		return crc.confirmQuote(quote);
 	}
 	
 	/**
