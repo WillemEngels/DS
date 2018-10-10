@@ -182,7 +182,7 @@ public class CarRentalCompany implements ICarRentalCompany{
 		return out.toString();
 	}
 	
-	 
+	
 	public List<Reservation> getReservationsByRenter(String renter){
 		List<Reservation> list = new ArrayList<Reservation>();
 		for (Car car : cars){
