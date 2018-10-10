@@ -17,8 +17,8 @@ import rental.ReservationException;
 
 public class Client extends AbstractTestBooking {
 	
-	private ICarRentalCompany crc;
-	
+	private ICarRentalCompany crc; 
+	 
 	/********
 	 * MAIN *
 	 ********/
