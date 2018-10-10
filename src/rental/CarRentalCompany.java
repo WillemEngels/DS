@@ -1,6 +1,7 @@
 package rental;
 
 import java.rmi.Remote;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -181,4 +182,25 @@ public class CarRentalCompany implements ICarRentalCompany{
 		return out.toString();
 	}
 	
+	
+	public List<Reservation> getReservationsByRenter(String renter){
+		List<Reservation> list = new ArrayList<Reservation>();
+		for (Car car : cars){
+			for (Reservation res: car.getReservations()){
+				if(res.getCarRenter().equals(renter)) list.add(res);
+			}
+		}
+		return list;
+	}
+	
+	
+	public int getNumberOfReservations(String type){
+		int result = 0;
+		for (Car car : cars) {
+			if (car.getType().getName().equals(type)){
+				result += car.getReservations().size();
+			}
+		}
+		return result;
+	}
 }
