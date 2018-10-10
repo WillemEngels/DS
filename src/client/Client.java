@@ -30,7 +30,6 @@ public class Client extends AbstractTestBooking {
 		
 		
 		
-		
 		// An example reservation scenario on car rental company 'Hertz' would be...
 		Client client = new Client("simpleTrips", carRentalCompanyName);
 		client.run();
