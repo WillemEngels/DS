@@ -1,6 +1,10 @@
-package rental;
+package Session;
 
 import java.util.List;
+
+import rental.CarType;
+import rental.Quote;
+import rental.Reservation;
 
 public interface IReservationSession {
 	

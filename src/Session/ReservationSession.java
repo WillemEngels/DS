@@ -1,8 +1,23 @@
-package rental;
+package Session;
 
+import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.List;
 
-public class ReservationSession implements IReservationSession{
+import rental.CarType;
+import rental.Quote;
+import rental.Reservation;
+
+public class ReservationSession extends Session implements IReservationSession{
+
+	
+	private List quotesList;
+	
+	public ReservationSession(String name) throws RemoteException {
+		super(name);
+		quotesList = new ArrayList();
+		// TODO Auto-generated constructor stub
+	}
 
 	@Override
 	public void createQuote() {

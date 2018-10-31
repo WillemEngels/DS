@@ -1,7 +1,9 @@
 package rental;
 
 import java.rmi.Remote;
+import java.time.Year;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -22,6 +24,7 @@ public class CarRentalCompany implements ICarRentalCompany{
 	private String name;
 	private List<Car> cars;
 	private Map<String,CarType> carTypes = new HashMap<String, CarType>();
+	private HashMap<String,Integer> rentersReservations = new HashMap<String,Integer>();
 
 	/***************
 	 * CONSTRUCTOR *
@@ -124,7 +127,7 @@ public class CarRentalCompany implements ICarRentalCompany{
 	 * RESERVATIONS *
 	 ****************/
 
-	public Quote createQuote(ReservationConstraints constraints, String client)
+	public synchronized Quote createQuote(ReservationConstraints constraints, String client)
 			throws ReservationException {
 		logger.log(Level.INFO, "<{0}> Creating tentative reservation for {1} with constraints {2}", 
                         new Object[]{name, client, constraints.toString()});
@@ -147,7 +150,7 @@ public class CarRentalCompany implements ICarRentalCompany{
 						/ (1000 * 60 * 60 * 24D));
 	}
 
-	public Reservation confirmQuote(Quote quote) throws ReservationException {
+	public synchronized Reservation confirmQuote(Quote quote) throws ReservationException {
 		logger.log(Level.INFO, "<{0}> Reservation of {1}", new Object[]{name, quote.toString()});
 		List<Car> availableCars = getAvailableCars(quote.getCarType(), quote.getStartDate(), quote.getEndDate());
 		if(availableCars.isEmpty())
@@ -157,10 +160,15 @@ public class CarRentalCompany implements ICarRentalCompany{
 		
 		Reservation res = new Reservation(quote, car.getId());
 		car.addReservation(res);
+		
+		String renter = quote.getCarRenter();
+		if(rentersReservations.containsKey(renter)) rentersReservations.put(renter, rentersReservations.get(renter)+1);
+		//add a new renter entry if new renter, otherwise increment reservation count
+		else rentersReservations.put(renter, 1);
 		return res;
 	}
 
-	public void cancelReservation(Reservation res) {
+	public synchronized void cancelReservation(Reservation res) {
 		logger.log(Level.INFO, "<{0}> Cancelling reservation {1}", new Object[]{name, res.toString()});
 		getCar(res.getCarId()).removeReservation(res);
 	}
@@ -202,4 +210,63 @@ public class CarRentalCompany implements ICarRentalCompany{
 		}
 		return result;
 	}
+
+	
+	/*******************************************
+	 * NIEUWE METHODES
+	 ******************************************/
+	
+	
+	@Override
+	public List<Reservation> getReservationsOfCarType(String type) {
+		List<Reservation> reservations = new LinkedList<Reservation>();
+		for (Car car : cars) {
+			if (car.getType().getName().equals(type)) {
+				reservations.addAll(car.getReservations());
+			}
+		}
+		return reservations;
+	}
+
+	
+	/*
+	 * (non-Javadoc)
+	 * @see rental.ICarRentalCompany#getMostPopularCarType(java.time.Year)
+	 * returns cartype string with name of cartype with most reservations this year
+	 * if equality arbitrarily chooses one
+	 */
+	@Override
+	public String getMostPopularCarType(int year) {
+		int max = 0;
+		String type = null;
+		int numberOfRes;
+		for(CarType carType : getAllCarTypes()){
+			if((numberOfRes = getNumberOfReservationsThisYear(year, carType.getName())) > max){
+				max = numberOfRes;
+				type = carType.getName();
+			}
+		}
+		return type;
+	}
+	
+	
+	public int getNumberOfReservationsThisYear(int year,String type){
+		int result = 0;
+		for (Reservation res : getReservationsOfCarType(type)) {
+			Date date = res.getStartDate();
+			Calendar calendar = Calendar.getInstance(); //getYear() is deprecated
+			calendar.setTime(date);
+			if (calendar.get(Calendar.YEAR)==(year)){
+				result += 1;
+			}
+		}
+		return result;
+	}
+	
+	
+	public HashMap<String,Integer> getRenterReservations(){
+		return rentersReservations;
+	}
+	
+	
 }

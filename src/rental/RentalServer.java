@@ -3,6 +3,8 @@ package rental;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
@@ -11,8 +13,28 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import NamingService.INamingService;
+import Session.Session;
+
+
 public class RentalServer {
 	
+	
+	
+	public static void main(String[] args) throws RemoteException, NotBoundException{
+		System.setSecurityManager(null);
+		Registry registry = LocateRegistry.getRegistry();
+		INamingService namingService = (INamingService) registry.lookup("NamingService");
+		Session.setNamingService(namingService);
+		
+	}
+	
+	
+	
+/*
+ * RMI 1 versie 
+ * 
+ * 
 	public static void main(String[] args) throws ReservationException,
 			NumberFormatException, IOException {
 		CrcData data  = loadData("hertz.csv");
@@ -76,4 +98,6 @@ public class RentalServer {
 		public List<String> regions =  new LinkedList<String>();
 	}
 
+
+*/
 }
