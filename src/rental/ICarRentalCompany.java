@@ -29,4 +29,14 @@ public interface ICarRentalCompany extends Remote{
 	public String getMostPopularCarType(int year);
 	
 	public HashMap<String,Integer> getRenterReservations();
+	
+	public CarType getCarType(String carTypeName);
+
+	public CarType getCheapestCarType(Date start, Date end, String region);
+
+	public Double getCheapestCarTypePrice(CarType carType, Date start, Date end);
+	
+	public boolean isLocatedInRegion(String region);
+
+	public void cancelReservation(Reservation res);
 	}

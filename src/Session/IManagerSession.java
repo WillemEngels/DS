@@ -43,12 +43,13 @@ public interface IManagerSession extends Remote,ISession{
 	 * METHODS OVER ALL COMPANIES
 	 **************************************/
 	
-	public String getBestCustomer();
+	//public String getBestCustomer();
+	public Set<String> getBestCustomers();
 	
 	
-	public String getMostPopularCarType(int year, ICarRentalCompany crc);
+	public CarType getMostPopularCarType(int year, String crc);
 	
-	public List<Reservation> getAllReservationsOfCarType(String type);
+	public List<Reservation> getAllReservationsOfCarType(String carRentalName, String type);
 	
 
 

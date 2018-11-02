@@ -75,6 +75,7 @@ public class CarRentalCompany implements ICarRentalCompany{
 		return carTypes.values();
 	}
 	
+	
 	public CarType getCarType(String carTypeName) {
 		if(carTypes.containsKey(carTypeName))
 			return carTypes.get(carTypeName);
@@ -266,6 +267,41 @@ public class CarRentalCompany implements ICarRentalCompany{
 	
 	public HashMap<String,Integer> getRenterReservations(){
 		return rentersReservations;
+	}
+
+	@Override
+	public CarType getCheapestCarType(Date start, Date end, String region) {
+		
+		HashMap<CarType, Double> carTypesWithPrice = new HashMap<CarType, Double>();
+		
+		for(CarType ct : getAllCarTypes()){
+			double carTypePrice = ct.getRentalPricePerDay();
+			
+			carTypesWithPrice.put(ct, calculateRentalPrice(carTypePrice, start, end) );
+		}
+		
+		CarType cheapest = null;
+		double minValue = 0;
+		
+		
+		for(CarType ct : carTypesWithPrice.keySet()) {
+			if(carTypesWithPrice.get(ct) < minValue) {
+				minValue = carTypesWithPrice.get(ct);
+				cheapest = ct;
+			}
+		}
+		
+		return cheapest;
+	}
+
+	@Override
+	public Double getCheapestCarTypePrice(CarType carType, Date start, Date end) {
+		return calculateRentalPrice(carType.getRentalPricePerDay(), start, end);
+	}
+
+	@Override
+	public boolean isLocatedInRegion(String region) {
+		return getRegions().contains(region);
 	}
 	
 	

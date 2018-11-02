@@ -25,7 +25,7 @@ public class SessionManager implements ISessionManager{
 	
 	
 	@Override
-	public ManagerSession createManagerSession(String name) throws RemoteException, Exception {
+	public ManagerSession createManagerSession(String name, String rentalName) throws RemoteException, Exception {
 		if(map.containsKey(name)){
 			Session session = map.get(name);
 			if(session instanceof ManagerSession){
